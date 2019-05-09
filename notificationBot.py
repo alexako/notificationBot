@@ -5,6 +5,7 @@ from time import sleep, strftime, localtime
 import praw
 import redditBot
 from pusher_trigger import Trigger
+from store import Store
 
 
 class NotificationBot:
@@ -17,6 +18,7 @@ class NotificationBot:
         self.retries = 0
         self.startTime = datetime.datetime.now()
         self.pusher = Trigger(self.botName, "triggered")
+        self.store = Store(self.botName, "notifications")
 
     def convertDateTime(self, epoch):
         return datetime.datetime.fromtimestamp(epoch)
@@ -43,6 +45,8 @@ class NotificationBot:
             self.pusher.push(payload)
             print("Triggered! %s"
                 % (str(datetime.datetime.now()).split('.')[0]))
+            self.store.insert(payload)
+            
         except Exception as e:
             print(e)
 
@@ -52,7 +56,8 @@ class NotificationBot:
             % (self.trigger, self.subreddit.display_name, str(self.startTime).split('.')[0]))
         try:
             for comment in self.subreddit.stream.comments():
-                if self.trigger in comment.body:
+                already_stored = self.store.get({'body': comment.body})
+                if self.trigger in comment.body and not already_stored:
                     try: self.trigger_event(comment)
                     except: continue
 
