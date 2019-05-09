@@ -12,3 +12,6 @@ PASSWORD = os.environ["REDDIT_PASS"]
 APP_ID = os.environ["PUSHER_APP_ID"]
 KEY = os.environ["PUSHER_KEY"]
 SECRET = os.environ["PUSHER_SECRET"]
+
+# MongoDB
+MONGO_URI = os.environ["MONGO_URI"]
